@@ -91,3 +91,4 @@ playwright-report/
 __*__.*
 
 /__*__
+/Gomez.FactorioService/appsettings.json
