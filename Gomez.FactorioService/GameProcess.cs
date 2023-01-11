@@ -5,15 +5,16 @@ using System.Diagnostics;
 
 namespace Gomez.FactorioService
 {
-    public class GameServiceProcess
+    public class GameProcess : IGameProcess
     {
         private readonly GameOption _option;
         private readonly ILogger<GameService> _logger;
 
         private Process? _process;
         private bool _safeClosed;
+        private bool _disposedValue;
 
-        public GameServiceProcess(
+        public GameProcess(
             GameOption option,
             ILogger<GameService> logger)
         {
@@ -74,6 +75,27 @@ namespace Gomez.FactorioService
             });
 
             return _process.WaitForExitAsync(CancellationToken.None);
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing && _process is not null)
+                {
+                    _process.Dispose();
+                    _process = null;
+                }
+
+                _disposedValue = true;
+            }
         }
 
         private void ErrorDataReceived(object sender, DataReceivedEventArgs args)

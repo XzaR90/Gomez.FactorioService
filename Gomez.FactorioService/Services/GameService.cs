@@ -26,8 +26,7 @@ namespace Gomez.FactorioService.Services
         {
             KillExistingProcesses();
 
-            var gameProcess = new GameServiceProcess(_option, _logger);
-
+            using var gameProcess = new GameProcess(_option, _logger);
             return Task.Factory.StartNew(() => gameProcess.StartAsync(ct)).Unwrap();
         }
 
