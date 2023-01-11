@@ -73,7 +73,7 @@ namespace Gomez.FactorioService
                 TryQuit();
             });
 
-            return _process.WaitForExitAsync();
+            return _process.WaitForExitAsync(CancellationToken.None);
         }
 
         private void ErrorDataReceived(object sender, DataReceivedEventArgs args)
