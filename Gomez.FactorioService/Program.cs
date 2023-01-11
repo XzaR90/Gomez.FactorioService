@@ -16,4 +16,5 @@ await host.StartAsync();
 using var scope = host.Services.CreateScope();
 var application = scope.ServiceProvider.GetRequiredService<IApplicationService>();
 await application.RunAsync();
+await application.WaitUntilProcessClosedAsync();
 await host.WaitForShutdownAsync();

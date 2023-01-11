@@ -1,7 +1,15 @@
 ﻿namespace Gomez.FactorioService.Options
 {
-    public class ApplicationOption
+    public class GameOption
     {
-        public TimeOnly RestartAfter { get; set; } = new TimeOnly(13, 15);
+        public const string SectionName = "Game";
+
+        public string ExePath { get; set; } = string.Empty;
+
+        public string SavePath { get; set; } = string.Empty;
+
+        public string SettingsPath { get; set; } = string.Empty;
+
+        public string ProcessName { get; set; } = "Factorio";
     }
 }

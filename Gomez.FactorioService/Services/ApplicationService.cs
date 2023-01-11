@@ -1,39 +1,38 @@
 ﻿using Gomez.FactorioService.Options;
+using Gomez.FactorioService.Utils;
 using Gomez.SteamCmd.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace Gomez.FactorioService.Services
 {
     public class ApplicationService : IApplicationService, IDisposable
     {
         private readonly ISteamCmdService _steamCmdService;
-        private readonly IGameService _factorioService;
+        private readonly IGameService _gameService;
         private readonly ILogger<ApplicationService> _logger;
         private readonly IHostApplicationLifetime _lifetime;
-
         private readonly ApplicationOption _option;
 
-        private Timer? _timer = default!;
-        private DateOnly? _lastRestart;
+        private CancellationTokenSource? _cts = new();
+        private DailyScheduler? _scheduler = null;
         private bool _disposedValue;
-        private CancellationTokenSource _cts = new();
 
         public ApplicationService(
             ISteamCmdService steamCmdService,
-            IGameService factorioService,
+            IGameService gameService,
             ILogger<ApplicationService> logger,
             IHostApplicationLifetime lifetime,
             IOptions<ApplicationOption> option)
         {
             _steamCmdService = steamCmdService;
             _logger = logger;
-            _factorioService = factorioService;
+            _gameService = gameService;
             _lifetime = lifetime;
             _option = option.Value;
         }
-
 
         public async Task RunAsync()
         {
@@ -42,49 +41,25 @@ namespace Gomez.FactorioService.Services
                 return;
             }
 
-            SetLastRestartIfDue();
+            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts!.Token, _lifetime.ApplicationStopping);
+            _scheduler = new DailyScheduler(_option, _lifetime.ApplicationStopping);
+            await _scheduler.StartAsync();
+            _scheduler.Invoked += SchedulerInvokedAsync;
 
-            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, _lifetime.ApplicationStopping);
-            _timer = new Timer(new TimerCallback(CancelAfterTimeoutAsync), null, 0, 1000);
-
-            await _steamCmdService.RunAsync(linkedCts.Token);
-            if (!_steamCmdService.State.HasErrors && !linkedCts.Token.IsCancellationRequested)
-            {
-                await _factorioService.RunAsync(linkedCts.Token);
-            }
+            await StartAsync(linkedCts);
         }
 
-        private void SetLastRestartIfDue()
+        public async Task WaitUntilProcessClosedAsync()
         {
-            var currentDateTime = DateTime.Now;
-            var currentTime = TimeOnly.FromDateTime(currentDateTime);
-            if (_lastRestart == null && currentTime > _option.RestartAfter)
+            var retries = 60;
+            while (Process.GetProcessesByName(_gameService.ProcessName).Length > 0 && retries > 0)
             {
-                var currentDate = DateOnly.FromDateTime(currentDateTime);
-                _lastRestart = currentDate;
-            }
-        }
-
-        public async void CancelAfterTimeoutAsync(object? state)
-        {
-            var currentDateTime = DateTime.Now;
-            var currentDate = DateOnly.FromDateTime(currentDateTime);
-            if (currentDate == _lastRestart)
-            {
-                return;
+                retries--;
+                await Task.Delay(1000);
+                _logger.LogWarning("Waiting until processes with name ({ProcessName}) are closed...", _gameService.ProcessName);
             }
 
-            var currentTime = TimeOnly.FromDateTime(currentDateTime);
-            if (currentTime >= _option.RestartAfter)
-            {
-                _lastRestart = currentDate;
-
-                _logger.LogInformation("Restart Application...");
-                _cts.Cancel();
-                _timer!.Dispose();
-                _cts = new();
-                await RunAsync();
-            }
+            _gameService.KillExistingProcesses();
         }
 
         public void Dispose()
@@ -100,20 +75,39 @@ namespace Gomez.FactorioService.Services
             {
                 if (disposing)
                 {
-                    if (_timer is not null)
-                    {
-                        _timer.Dispose();
-                        _timer = null;
-                    }
-
                     if (_cts is not null)
                     {
                         _cts.Dispose();
                         _cts = null;
                     }
+
+                    if (_scheduler is not null)
+                    {
+                        _scheduler.Dispose();
+                        _scheduler = null;
+                    }
                 }
 
                 _disposedValue = true;
+            }
+        }
+
+        private async void SchedulerInvokedAsync(object? sender, EventArgs e)
+        {
+            _scheduler?.Dispose();
+            _cts?.Cancel();
+            await WaitUntilProcessClosedAsync();
+
+            _cts = new();
+            await RunAsync();
+        }
+
+        private async Task StartAsync(CancellationTokenSource linkedCts)
+        {
+            await _steamCmdService.RunAsync(linkedCts.Token);
+            if (!_steamCmdService.State.HasErrors && !linkedCts.Token.IsCancellationRequested)
+            {
+                await _gameService.RunAsync(linkedCts.Token);
             }
         }
     }

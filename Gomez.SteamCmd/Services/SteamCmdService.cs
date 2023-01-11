@@ -28,6 +28,11 @@ namespace Gomez.SteamCmd.Services
 
         public override async Task RunAsync(CancellationToken ct)
         {
+            if (_option.Skip)
+            {
+                return;
+            }
+
             _logger.LogInformation("{SteamCMD}: Try Downloading and Updating game with '{AppId}'.", SteamCMD, _option.AppId);
             var processToRunInfo = new ProcessStartInfo
             {
@@ -72,7 +77,7 @@ namespace Gomez.SteamCmd.Services
 
         private void ErrorDataReceived(object sender, DataReceivedEventArgs args)
         {
-            if(args.Data is null)
+            if (args.Data is null)
             {
                 return;
             }

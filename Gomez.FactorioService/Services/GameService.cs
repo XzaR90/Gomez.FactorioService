@@ -8,8 +8,6 @@ namespace Gomez.FactorioService.Services
 {
     public class GameService : ProcessBaseService, IGameService
     {
-        private const string GameName = "Factorio";
-
         private readonly GameOption _option;
         private readonly ILogger<GameService> _logger;
 
@@ -19,58 +17,27 @@ namespace Gomez.FactorioService.Services
         {
             _option = option.Value;
             _logger = logger;
+            ProcessName = _option.ProcessName;
         }
 
-        public override async Task RunAsync(CancellationToken ct)
+        public string ProcessName { get; set; }
+
+        public override Task RunAsync(CancellationToken ct)
         {
-            var processToRunInfo = new ProcessStartInfo
-            {
-                Arguments = $"--start-server \"{_option.SavePath}\" --server-settings \"{_option.SettingsPath}\"",
-                CreateNoWindow = false,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                RedirectStandardInput = true,
-                WorkingDirectory = Path.GetDirectoryName(_option.ExePath),
-                FileName = _option.ExePath,
-            };
+            KillExistingProcesses();
 
-            var p = new Process
-            {
-                StartInfo = processToRunInfo,
-                EnableRaisingEvents = true,
-            };
+            var gameProcess = new GameServiceProcess(_option, _logger);
 
-            p.OutputDataReceived += OutputDataReceived;
-            p.ErrorDataReceived += ErrorDataReceived;
-            p.Start();
-            p.BeginOutputReadLine();
-            p.BeginErrorReadLine();
-
-            ct.Register(() =>
-            {
-                p.Kill(true);
-            });
+            return Task.Factory.StartNew(() => gameProcess.StartAsync(ct)).Unwrap();
         }
 
-        private void ErrorDataReceived(object sender, DataReceivedEventArgs args)
+        public void KillExistingProcesses()
         {
-            if (args.Data is null)
+            foreach (var process in Process.GetProcessesByName(ProcessName))
             {
-                return;
+                _logger.LogWarning("Killed process ({ProcessName}) with ID: {id}", ProcessName, process.Id);
+                process.Kill();
             }
-
-            _logger.LogError("{GameName}: {Data}", GameName, args.Data);
-        }
-
-        private void OutputDataReceived(object sender, DataReceivedEventArgs args)
-        {
-            if (args.Data is null)
-            {
-                return;
-            }
-
-            _logger.LogInformation("{GameName}: {Data}", GameName, args.Data);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Gomez.FactorioService.Options;
+﻿using Gomez.Core.BackgroundQueue;
+using Gomez.FactorioService.Options;
 using Gomez.FactorioService.Services;
 using Gomez.SteamCmd;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +27,12 @@ namespace Gomez.FactorioService
 
         private static IServiceCollection AddAppConfiguration(this IServiceCollection services)
         {
+            services.AddHostedService<QueuedHostedService>();
+            services.AddSingleton<IBackgroundTaskQueue>(sp =>
+            {
+                return new BackgroundTaskQueue(5);
+            });
+
             services.AddSingleton(sp => _configuration);
             services.AddOptions();
             services.Configure<GameOption>(_configuration.GetSection(GameOption.SectionName));

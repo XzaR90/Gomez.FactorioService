@@ -5,5 +5,6 @@ namespace Gomez.FactorioService.Services
     public interface IApplicationService
     {
         Task RunAsync();
+        Task WaitUntilProcessClosedAsync();
     }
 }
