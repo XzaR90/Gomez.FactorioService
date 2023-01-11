@@ -7,5 +7,6 @@
         bool SafeClosed { get; }
 
         Task StartAsync(CancellationToken ct);
+        Task WriteToChatAsync(string message);
     }
 }

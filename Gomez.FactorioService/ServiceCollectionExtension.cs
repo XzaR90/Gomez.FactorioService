@@ -38,7 +38,7 @@ namespace Gomez.FactorioService
             services.Configure<GameOption>(_configuration.GetSection(GameOption.SectionName));
             services.Configure<ApplicationOption>(_configuration);
             services.AddSteamConfiguration(_configuration);
-            services.AddScoped<IGameService, GameService>();
+            services.AddSingleton<IGameService, GameService>();
             services.AddScoped<IApplicationService, ApplicationService>();
             return services;
         }

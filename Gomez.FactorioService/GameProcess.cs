@@ -77,6 +77,16 @@ namespace Gomez.FactorioService
             return _process.WaitForExitAsync(CancellationToken.None);
         }
 
+        public async Task WriteToChatAsync(string message)
+        {
+            if (_process?.HasExited != false || _process.StandardInput?.BaseStream is null)
+            {
+                return;
+            }
+
+            await _process.StandardInput.WriteLineAsync(message);
+        }
+
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method

@@ -11,6 +11,9 @@ namespace Gomez.FactorioService.Services
         private readonly GameOption _option;
         private readonly ILogger<GameService> _logger;
 
+        private IGameProcess? _gameProcess;
+        private bool _disposedValue;
+
         public GameService(
             IOptions<GameOption> option,
             ILogger<GameService> logger)
@@ -26,8 +29,13 @@ namespace Gomez.FactorioService.Services
         {
             KillExistingProcesses();
 
-            using var gameProcess = new GameProcess(_option, _logger);
-            return Task.Factory.StartNew(() => gameProcess.StartAsync(ct)).Unwrap();
+            _gameProcess = new GameProcess(_option, _logger);
+            return Task.Factory.StartNew(() => _gameProcess.StartAsync(ct)).Unwrap();
+        }
+
+        public Task WriteToChatAsync(string message)
+        {
+            return _gameProcess?.WriteToChatAsync(message) ?? Task.CompletedTask;
         }
 
         public void KillExistingProcesses()
@@ -36,6 +44,27 @@ namespace Gomez.FactorioService.Services
             {
                 _logger.LogWarning("Killed process ({ProcessName}) with ID: {id}", ProcessName, process.Id);
                 process.Kill();
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing && _gameProcess is not null)
+                {
+                    _gameProcess.Dispose();
+                    _gameProcess = null;
+                }
+
+                _disposedValue = true;
             }
         }
     }
