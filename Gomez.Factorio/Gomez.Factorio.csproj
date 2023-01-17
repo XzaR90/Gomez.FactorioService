@@ -5,15 +5,16 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>ee41340d-9617-4f51-b894-964e9ae94915</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cake.Powershell" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Gomez.Core\Gomez.Core.csproj" />
+    <ProjectReference Include="..\Gomez.Factorio.DataTransmitter\Gomez.Factorio.DataTransmitter.csproj" />
     <ProjectReference Include="..\Gomez.SteamCmd\Gomez.SteamCmd.csproj" />
   </ItemGroup>
 

@@ -1,13 +1,15 @@
 ﻿using Gomez.Core.BackgroundQueue;
-using Gomez.FactorioService.Options;
-using Gomez.FactorioService.Services;
+using Gomez.Factorio.DataTransmitter;
+using Gomez.Factorio.Options;
+using Gomez.Factorio.Services;
+using Gomez.Factorio.Services.Interfaces;
 using Gomez.SteamCmd;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Gomez.FactorioService
+namespace Gomez.Factorio
 {
     public static class ServiceCollectionExtension
     {
@@ -19,8 +21,8 @@ namespace Gomez.FactorioService
             SetEnv(env);
             BuildConfiguration();
 
-            services.AddAppLogging();
-            services.AddAppConfiguration();
+            services.AddAppLogging()
+            .AddAppConfiguration();
 
             return services;
         }
@@ -33,13 +35,17 @@ namespace Gomez.FactorioService
                 return new BackgroundTaskQueue(5);
             });
 
-            services.AddSingleton(sp => _configuration);
-            services.AddOptions();
-            services.Configure<GameOption>(_configuration.GetSection(GameOption.SectionName));
-            services.Configure<ApplicationOption>(_configuration);
-            services.AddSteamConfiguration(_configuration);
-            services.AddSingleton<IGameService, GameService>();
-            services.AddScoped<IApplicationService, ApplicationService>();
+            services
+            .AddSingleton(sp => _configuration)
+            .AddOptions()
+            .Configure<GameOption>(_configuration.GetSection(GameOption.SectionName))
+            .Configure<ApplicationOption>(_configuration)
+            .AddSteamConfiguration(_configuration)
+            .AddTransferConfiguration(_configuration)
+            .AddSingleton<IGameService, GameService>()
+            .AddSingleton<IStatisticService, StatisticService>()
+            .AddScoped<IApplicationService, ApplicationService>();
+
             return services;
         }
 
@@ -59,6 +65,7 @@ namespace Gomez.FactorioService
             _configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.{_environment.EnvironmentName}.json", true)
+                .AddUserSecrets<Program>()
                 .Build();
         }
     }

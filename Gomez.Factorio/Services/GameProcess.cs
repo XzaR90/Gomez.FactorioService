@@ -1,9 +1,9 @@
-﻿using Gomez.FactorioService.Options;
-using Gomez.FactorioService.Services;
+﻿using Gomez.Factorio.Options;
+using Gomez.Factorio.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-namespace Gomez.FactorioService
+namespace Gomez.Factorio.Services
 {
     public class GameProcess : IGameProcess
     {
@@ -142,6 +142,7 @@ namespace Gomez.FactorioService
                 return;
             }
 
+            _logger.LogInformation("{ProcessName}: Server is restarting or closing.", ProcessName);
             sw.WriteLine("GameService: server is restarting or closing.");
             sw.Flush();
             Thread.Sleep(5000);

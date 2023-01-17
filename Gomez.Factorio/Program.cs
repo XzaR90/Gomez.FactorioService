@@ -1,5 +1,5 @@
-﻿using Gomez.FactorioService;
-using Gomez.FactorioService.Services;
+﻿using Gomez.Factorio;
+using Gomez.Factorio.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

@@ -1,10 +1,11 @@
 ﻿using Gomez.Core.Services;
-using Gomez.FactorioService.Options;
+using Gomez.Factorio.Options;
+using Gomez.Factorio.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
-namespace Gomez.FactorioService.Services
+namespace Gomez.Factorio.Services
 {
     public class GameService : ProcessBaseService, IGameService
     {

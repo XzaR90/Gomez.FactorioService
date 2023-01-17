@@ -1,4 +1,4 @@
-﻿namespace Gomez.FactorioService
+﻿namespace Gomez.Factorio.Services.Interfaces
 {
     public interface IGameProcess : IDisposable
     {
@@ -7,6 +7,7 @@
         bool SafeClosed { get; }
 
         Task StartAsync(CancellationToken ct);
+
         Task WriteToChatAsync(string message);
     }
 }

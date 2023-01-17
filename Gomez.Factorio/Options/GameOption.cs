@@ -1,4 +1,4 @@
-﻿namespace Gomez.FactorioService.Options
+﻿namespace Gomez.Factorio.Options
 {
     public class GameOption
     {

@@ -1,9 +1,10 @@
 ﻿#pragma warning disable SA1402
 #nullable disable
 
+using Gomez;
 using System.Text.Json.Serialization;
 
-namespace Gomez.FactorioService.Models
+namespace Gomez.Factorio.Models
 {
     public class RootStats
     {
@@ -35,7 +36,7 @@ namespace Gomez.FactorioService.Models
         public int A { get; set; }
     }
 
- // File may only contain a single type
+    // File may only contain a single type
     public class EntityBuildCountStatistics
     {
         [JsonPropertyName("input")]

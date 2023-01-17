@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gomez.FactorioService", "Gomez.FactorioService\Gomez.FactorioService.csproj", "{06A35D09-F986-4674-8892-62FDB0F0493B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gomez.Factorio", "Gomez.Factorio\Gomez.Factorio.csproj", "{06A35D09-F986-4674-8892-62FDB0F0493B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gomez.SteamCmd", "Gomez.SteamCmd\Gomez.SteamCmd.csproj", "{6A2D9E65-D114-4B12-BE72-DBEB120503B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gomez.Core", "Gomez.Core\Gomez.Core.csproj", "{1B4C9CB9-53DE-42C7-A62B-A6C34773EA1D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gomez.Core", "Gomez.Core\Gomez.Core.csproj", "{1B4C9CB9-53DE-42C7-A62B-A6C34773EA1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gomez.Factorio.DataTransmitter", "Gomez.Factorio.DataTransmitter\Gomez.Factorio.DataTransmitter.csproj", "{4834F5CD-DAEA-4840-9EA8-D6A7E411D7A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{1B4C9CB9-53DE-42C7-A62B-A6C34773EA1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B4C9CB9-53DE-42C7-A62B-A6C34773EA1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B4C9CB9-53DE-42C7-A62B-A6C34773EA1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4834F5CD-DAEA-4840-9EA8-D6A7E411D7A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4834F5CD-DAEA-4840-9EA8-D6A7E411D7A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4834F5CD-DAEA-4840-9EA8-D6A7E411D7A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4834F5CD-DAEA-4840-9EA8-D6A7E411D7A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

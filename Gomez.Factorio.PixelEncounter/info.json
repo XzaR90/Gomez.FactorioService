@@ -1,0 +1,9 @@
+{
+    "name": "pixelencounter-server-mod",
+    "version": "1.0.0",
+    "title": "Pixel Encounter Server mod",
+    "author": "Josh Gomez aka XzaR90",
+    "homepage": "https://github.com/XzaR90/Gomez.FactorioService",
+    "factorio_version": "1.1",
+    "description": "A mod for Pixel Encounter server."
+  }

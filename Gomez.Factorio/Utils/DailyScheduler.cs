@@ -1,7 +1,7 @@
 ﻿using Gomez.Core;
-using Gomez.FactorioService.Options;
+using Gomez.Factorio.Options;
 
-namespace Gomez.FactorioService.Utils
+namespace Gomez.Factorio.Utils
 {
     internal class DailyScheduler : IDisposable
     {
