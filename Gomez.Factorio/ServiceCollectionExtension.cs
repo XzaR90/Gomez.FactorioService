@@ -35,16 +35,22 @@ namespace Gomez.Factorio
                 return new BackgroundTaskQueue(5);
             });
 
+
+
             services
             .AddSingleton(sp => _configuration)
             .AddOptions()
+            .Configure<ModdingOption>(_configuration.GetSection(ModdingOption.SectionName))
             .Configure<GameOption>(_configuration.GetSection(GameOption.SectionName))
             .Configure<ApplicationOption>(_configuration)
             .AddSteamConfiguration(_configuration)
             .AddTransferConfiguration(_configuration)
             .AddSingleton<IGameService, GameService>()
+            .AddSingleton<IModService, ModService>()
             .AddSingleton<IStatisticService, StatisticService>()
             .AddScoped<IApplicationService, ApplicationService>();
+
+            services.AddHttpClient<IModHttpClient, ModHttpClient>();
 
             return services;
         }

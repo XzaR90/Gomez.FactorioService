@@ -14,6 +14,7 @@ namespace Gomez.Factorio.Services
         private readonly ISteamCmdService _steamCmdService;
         private readonly IGameService _gameService;
         private readonly IStatisticService _statisticService;
+        private readonly IModService _modService;
         private readonly ILogger<ApplicationService> _logger;
         private readonly IHostApplicationLifetime _lifetime;
         private readonly ApplicationOption _option;
@@ -28,7 +29,8 @@ namespace Gomez.Factorio.Services
             ILogger<ApplicationService> logger,
             IHostApplicationLifetime lifetime,
             IOptions<ApplicationOption> option,
-            IStatisticService statisticService)
+            IStatisticService statisticService,
+            IModService modService)
         {
             _steamCmdService = steamCmdService;
             _logger = logger;
@@ -36,6 +38,7 @@ namespace Gomez.Factorio.Services
             _lifetime = lifetime;
             _option = option.Value;
             _statisticService = statisticService;
+            _modService = modService;
         }
 
         public async Task RunAsync()
@@ -51,6 +54,7 @@ namespace Gomez.Factorio.Services
             _scheduler.Invoked += SchedulerInvokedAsync;
 
             await _statisticService.StartTransferAsync(linkedCts.Token);
+            await _modService.StartAsync(linkedCts.Token);
             await StartAsync(linkedCts);
         }
 

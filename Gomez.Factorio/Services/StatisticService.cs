@@ -1,5 +1,6 @@
 ﻿using Gomez.Core.BackgroundQueue;
 using Gomez.Factorio.DataTransmitter;
+using Gomez.Factorio.Models;
 using Gomez.Factorio.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -16,15 +17,11 @@ namespace Gomez.Factorio.Services
             IFileTransfer fileTransfer,
             ILogger<StatisticService> logger)
         {
-            ForcesPath = Path.Combine(AppDataPath, "script-output", "statistic", "forces");
+            ForcesPath = Path.Combine(FactorioPath.ScriptOutput, "statistic", "forces");
             _backgroundTaskQueue = backgroundTaskQueue;
             _fileTransfer = fileTransfer;
             _logger = logger;
         }
-
-        public string AppDataPath { get; private set; } = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "Factorio");
 
         public string ForcesPath { get; private set; }
 
