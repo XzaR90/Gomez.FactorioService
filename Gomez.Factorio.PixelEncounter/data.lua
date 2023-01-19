@@ -10,14 +10,14 @@ local function define_sprite(name, position, filename, size)
     return sprite
 end
 
-local settings_white_icon = '__RPG__/utils/files/settings-white.png'
-local settings_black_icon = '__RPG__/utils/files/settings-black.png'
-local pin_white_icon = '__RPG__/utils/files/pin-white.png'
-local pin_black_icon = '__RPG__/utils/files/pin-black.png'
-local infinite_icon = '__RPG__/utils/files/infinity.png'
-local arrow_up_icon = '__RPG__/utils/files/arrow-up.png'
-local arrow_down_icon = '__RPG__/utils/files/arrow-down.png'
-local info_icon = '__RPG__/utils/files/info.png'
+local settings_white_icon = '__pixelencounter-server-mod__/utils/files/settings-white.png'
+local settings_black_icon = '__pixelencounter-server-mod__/utils/files/settings-black.png'
+local pin_white_icon = '__pixelencounter-server-mod__/utils/files/pin-white.png'
+local pin_black_icon = '__pixelencounter-server-mod__/utils/files/pin-black.png'
+local infinite_icon = '__pixelencounter-server-mod__/utils/files/infinity.png'
+local arrow_up_icon = '__pixelencounter-server-mod__/utils/files/arrow-up.png'
+local arrow_down_icon = '__pixelencounter-server-mod__/utils/files/arrow-down.png'
+local info_icon = '__pixelencounter-server-mod__/utils/files/info.png'
 
 data:extend {
     define_sprite('rpg_settings_white_icon', {0, 0}, settings_white_icon, 32),

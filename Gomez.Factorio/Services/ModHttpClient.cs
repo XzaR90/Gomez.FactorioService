@@ -1,5 +1,6 @@
 ﻿using Gomez.Factorio.Models;
 using Gomez.Factorio.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -11,23 +12,32 @@ namespace Gomez.Factorio.Services
     {
         private readonly HttpClient _httpClient;
         private readonly ModdingOption _moddingOption;
+        private readonly ILogger<ModHttpClient> _logger;
 
-        public ModHttpClient(HttpClient httpClient, IOptions<ModdingOption> moddingOption)
+        public ModHttpClient(
+            HttpClient httpClient,
+            IOptions<ModdingOption> moddingOption,
+            ILogger<ModHttpClient> logger)
         {
             _moddingOption = moddingOption.Value;
             _httpClient = httpClient;
-            _httpClient.DefaultRequestHeaders.Authorization 
+            _httpClient.DefaultRequestHeaders.Authorization
                 = new AuthenticationHeaderValue("Bearer", _moddingOption.ApiKey);
+            _logger = logger;
         }
 
         public async Task PostInitAsync(ModInfo info, string zipFilePath)
         {
             var requestUrl = $"{_moddingOption.ModPortalUrl}/api/v2/mods/releases/init_upload";
             var result = await _httpClient.PostAsJsonAsync(requestUrl, new { mod = info.Name });
-            result.EnsureSuccessStatusCode();
+            if (result.IsSuccessStatusCode)
+            {
+                var initResponse = await result.Content.ReadFromJsonAsync<InitModPortalResponse>();
+                await PostUploadAsync(zipFilePath, initResponse!);
+                return;
+            }
 
-            var initResponse = await result.Content.ReadFromJsonAsync<InitModPortalResponse>();
-            await PostUploadAsync(zipFilePath, initResponse!);
+            _logger.LogError(result.ReasonPhrase);
         }
 
         private async Task PostUploadAsync(string zipFilePath, InitModPortalResponse initResponse)
@@ -39,7 +49,10 @@ namespace Gomez.Factorio.Services
             };
 
             var result = await _httpClient.PostAsync(initResponse.UploadUrl, content);
-            result.EnsureSuccessStatusCode();
+            if (!result.IsSuccessStatusCode)
+            {
+                _logger.LogError(result.ReasonPhrase);
+            }
         }
     }
 }

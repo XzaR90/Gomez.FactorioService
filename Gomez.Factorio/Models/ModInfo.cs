@@ -4,10 +4,11 @@ namespace Gomez.Factorio.Models
 {
     public class ModInfo
     {
-        public ModInfo(string name, string version)
+        public ModInfo(string name, string version, string factorioVersion)
         {
             Name = name;
             Version = version;
+            FactorioVersion = factorioVersion;
         }
 
         public string Name { get; set; }
@@ -20,7 +21,10 @@ namespace Gomez.Factorio.Models
 
         public string? Homepage { get; set; }
 
-        public string? FactorioVersion { get; set; }
+        [JsonPropertyName("factorio_version")]
+        public string FactorioVersion { get; set; }
+
+        public string[]? Dependencies { get; set; }
 
         public string? Description { get; set; }
 

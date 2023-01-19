@@ -14,10 +14,10 @@ namespace Gomez.Factorio.Services
         private readonly ModdingOption _option;
         private readonly ILogger<ModService> _logger;
         private readonly IModHttpClient _httpClient;
+        private readonly DebounceWrapper debouncedWrapper = new();
 
         private FileSystemWatcher? _fileSystemWatcher;
         private bool _disposedValue;
-        private DebounceWrapper debouncedWrapper = new();
 
         public ModService(
             IOptions<ModdingOption> option,
@@ -54,7 +54,7 @@ namespace Gomez.Factorio.Services
                             NotifyFilters.DirectoryName,
                         IncludeSubdirectories = true,
                         EnableRaisingEvents = true,
-                        Filter = "*.md",
+                        Filter = "changelog.txt",
                     };
 
                     _fileSystemWatcher.Changed += OnChangedAsync;
@@ -112,14 +112,15 @@ namespace Gomez.Factorio.Services
             var modName = $"{info.Name}_{info.Version}";
             var zipFileName = Path.Combine(FactorioPath.Mods, $"{modName}.zip");
 
-            using var zipStream = new FileStream(Path.GetFullPath(zipFileName), FileMode.Create, FileAccess.Write);
-            using var archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
+            var zipStream = new FileStream(Path.GetFullPath(zipFileName), FileMode.Create, FileAccess.Write);
+            using var archive = new ZipArchive(zipStream, ZipArchiveMode.Create, false);
 
             foreach (var filePath in Directory.GetFiles(_option.ModFolder!, "*.*", SearchOption.AllDirectories))
             {
-                var relativePath = filePath.Replace(_option.ModFolder!, modName);
+                var relativePath = filePath.Replace(_option.ModFolder!, info.Name);
+                var unixRelativePath = relativePath.Replace('\\', '/');
                 using Stream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                using Stream fileStreamInZip = archive.CreateEntry(relativePath).Open();
+                using Stream fileStreamInZip = archive.CreateEntry(unixRelativePath).Open();
                 await fileStream.CopyToAsync(fileStreamInZip);
             }
 
