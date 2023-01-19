@@ -9,5 +9,7 @@
         public string? ApiKey { get; set; }
 
         public string? ModPortalUrl { get; set; }
+
+        public bool EnableUpload { get; set; }
     }
 }

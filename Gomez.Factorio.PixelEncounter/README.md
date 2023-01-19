@@ -1,1 +1,0 @@
-# Factorio Pixel Encounter Server 

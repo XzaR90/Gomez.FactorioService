@@ -2,7 +2,6 @@
 using Gomez.Factorio.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -26,21 +25,37 @@ namespace Gomez.Factorio.Services
             _logger = logger;
         }
 
-        public async Task PostInitAsync(ModInfo info, string zipFilePath)
+        public async Task<bool> PostInitAsync(ModInfo info, string zipFilePath)
         {
             var requestUrl = $"{_moddingOption.ModPortalUrl}/api/v2/mods/releases/init_upload";
-            var result = await _httpClient.PostAsJsonAsync(requestUrl, new { mod = info.Name });
+            var result = await _httpClient.PostAsync(requestUrl, new FormUrlEncodedContent(
+                new Dictionary<string,string>(1) { { "mod", info.Name } }));
             if (result.IsSuccessStatusCode)
             {
                 var initResponse = await result.Content.ReadFromJsonAsync<InitModPortalResponse>();
-                await PostUploadAsync(zipFilePath, initResponse!);
-                return;
+                if (await PostUploadAsync(zipFilePath, initResponse!))
+                {
+                    return true;
+                }
+
+                return false;
             }
 
-            _logger.LogError(result.ReasonPhrase);
+            await LogErrorAsync(result, nameof(PostInitAsync));
+            return false;
         }
 
-        private async Task PostUploadAsync(string zipFilePath, InitModPortalResponse initResponse)
+        private async Task LogErrorAsync(HttpResponseMessage result, string type)
+        {
+            var errorResponse = await result.Content.ReadAsStringAsync();
+            _logger.LogError(
+                "{StatusCode}: Something went wrong with {Type}: {errorResponse}",
+                result.StatusCode,
+                type,
+                errorResponse);
+        }
+
+        private async Task<bool> PostUploadAsync(string zipFilePath, InitModPortalResponse initResponse)
         {
             var fileStream = File.OpenRead(zipFilePath);
             var content = new MultipartFormDataContent
@@ -49,10 +64,13 @@ namespace Gomez.Factorio.Services
             };
 
             var result = await _httpClient.PostAsync(initResponse.UploadUrl, content);
-            if (!result.IsSuccessStatusCode)
+            if (result.IsSuccessStatusCode)
             {
-                _logger.LogError(result.ReasonPhrase);
+                return true;
             }
+
+            await LogErrorAsync(result, nameof(PostUploadAsync));
+            return false;
         }
     }
 }

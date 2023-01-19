@@ -4,6 +4,6 @@ namespace Gomez.Factorio.Services
 {
     public interface IModHttpClient
     {
-        Task PostInitAsync(ModInfo info, string zipFilePath);
+        Task<bool> PostInitAsync(ModInfo info, string zipFilePath);
     }
 }

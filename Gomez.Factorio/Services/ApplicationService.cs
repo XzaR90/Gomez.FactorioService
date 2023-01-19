@@ -39,6 +39,7 @@ namespace Gomez.Factorio.Services
             _option = option.Value;
             _statisticService = statisticService;
             _modService = modService;
+            _modService.ModPublished += ModPublishedAsync;
         }
 
         public async Task RunAsync()
@@ -102,6 +103,18 @@ namespace Gomez.Factorio.Services
         }
 
         private async void SchedulerInvokedAsync(object? sender, EventArgs e)
+        {
+            await RestartAsync();
+        }
+
+        private async void ModPublishedAsync(object? sender, EventArgs e)
+        {
+            await _gameService.WriteToChatAsync("Server is updating, will be restarted in 10 seconds.");
+            await Task.Delay(10000);
+            await RestartAsync();
+        }
+
+        private async Task RestartAsync()
         {
             _scheduler?.Dispose();
             _cts?.Cancel();

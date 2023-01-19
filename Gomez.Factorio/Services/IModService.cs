@@ -2,6 +2,8 @@
 {
     public interface IModService : IDisposable
     {
+        event EventHandler? ModPublished;
+
         Task StartAsync(CancellationToken ct);
     }
 }

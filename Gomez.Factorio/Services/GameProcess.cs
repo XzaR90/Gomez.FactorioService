@@ -85,6 +85,7 @@ namespace Gomez.Factorio.Services
             }
 
             await _process.StandardInput.WriteLineAsync(message);
+            await _process.StandardInput.FlushAsync();
         }
 
         public void Dispose()

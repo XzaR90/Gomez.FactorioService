@@ -2,6 +2,8 @@
 {
     public record Versioning
     {
+        private const int VersionMax = 999;
+
         public Versioning(string version)
         {
             if (string.IsNullOrEmpty(version))
@@ -33,16 +35,36 @@
             var (patch, minor, major) = this;
 
             patch++;
-            if (patch > 999)
+            if (patch > VersionMax)
             {
                 patch = 0;
                 minor++;
             }
 
-            if (minor > 999)
+            if (minor > VersionMax)
             {
                 minor = 0;
                 major++;
+            }
+
+            return new Versioning(major, minor, patch);
+        }
+
+        public Versioning Debump()
+        {
+            var (patch, minor, major) = this;
+
+            patch--;
+            if (patch < 0)
+            {
+                patch = VersionMax;
+                minor--;
+            }
+
+            if (minor < 0)
+            {
+                minor = VersionMax;
+                major--;
             }
 
             return new Versioning(major, minor, patch);
