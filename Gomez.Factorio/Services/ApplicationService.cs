@@ -49,14 +49,8 @@ namespace Gomez.Factorio.Services
                 return;
             }
 
-            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts!.Token, _lifetime.ApplicationStopping);
-            _scheduler = new DailyScheduler(_option, _lifetime.ApplicationStopping);
-            await _scheduler.StartAsync();
-            _scheduler.Invoked += SchedulerInvokedAsync;
-
-            await _statisticService.StartTransferAsync(linkedCts.Token);
-            await _modService.StartAsync(linkedCts.Token);
-            await StartAsync(linkedCts);
+            await _modService.StartAsync(_lifetime.ApplicationStopping);
+            await RunGameAsync();
         }
 
         public async Task WaitUntilProcessClosedAsync()
@@ -102,29 +96,45 @@ namespace Gomez.Factorio.Services
             }
         }
 
+        private async Task RunGameAsync()
+        {
+            if (_lifetime.ApplicationStopping.IsCancellationRequested)
+            {
+                return;
+            }
+
+            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts!.Token, _lifetime.ApplicationStopping);
+            _scheduler = new DailyScheduler(_option, _lifetime.ApplicationStopping);
+            await _scheduler.StartAsync();
+            _scheduler.Invoked += SchedulerInvokedAsync;
+
+            await _statisticService.StartTransferAsync(linkedCts.Token);
+            await StartGameAsync(linkedCts);
+        }
+
         private async void SchedulerInvokedAsync(object? sender, EventArgs e)
         {
-            await RestartAsync();
+            await RestartGameAsync();
         }
 
         private async void ModPublishedAsync(object? sender, EventArgs e)
         {
             await _gameService.WriteToChatAsync("Server is updating, will be restarted in 10 seconds.");
             await Task.Delay(10000);
-            await RestartAsync();
+            await RestartGameAsync();
         }
 
-        private async Task RestartAsync()
+        private async Task RestartGameAsync()
         {
             _scheduler?.Dispose();
             _cts?.Cancel();
             await WaitUntilProcessClosedAsync();
 
             _cts = new();
-            await RunAsync();
+            await RunGameAsync();
         }
 
-        private async Task StartAsync(CancellationTokenSource linkedCts)
+        private async Task StartGameAsync(CancellationTokenSource linkedCts)
         {
             await _steamCmdService.RunAsync(linkedCts.Token);
             if (!_steamCmdService.State.HasErrors && !linkedCts.Token.IsCancellationRequested)
