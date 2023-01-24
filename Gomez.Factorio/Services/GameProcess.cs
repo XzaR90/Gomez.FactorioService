@@ -144,11 +144,11 @@ namespace Gomez.Factorio.Services
             }
 
             _logger.LogInformation("{ProcessName}: Server is restarting or closing.", ProcessName);
-            sw.WriteLine("GameService: server is restarting or closing.");
-            sw.Flush();
+            sw?.WriteLine("GameService: server is restarting or closing.");
+            sw?.Flush();
             Thread.Sleep(5000);
-            sw.WriteLine("/quit");
-            sw.Flush();
+            sw?.WriteLine("/quit");
+            sw?.Flush();
         }
     }
 }
