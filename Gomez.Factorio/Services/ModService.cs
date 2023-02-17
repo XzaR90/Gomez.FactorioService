@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO.Compression;
+using System.Reflection.PortableExecutable;
 using System.Text.Json;
 
 namespace Gomez.Factorio.Services
@@ -96,10 +97,37 @@ namespace Gomez.Factorio.Services
             }
         }
 
-        private static async Task<ModInfo> GetInfoAndBumpVersionAsync(JsonSerializerOptions options, string modInfoPath)
+        private async Task<ModInfo> GetInfoAndBumpVersionAsync(JsonSerializerOptions options, string modInfoPath)
         {
             var info = JsonSerializer.Deserialize<ModInfo>(await File.ReadAllTextAsync(modInfoPath), options)!;
+            var nextVersion = string.Empty;
+
+            using FileStream stream = File.Open(Path.Combine(_option.ModFolder!, "changelog.txt"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var reader = new StreamReader(stream, leaveOpen: true);
+            var line = string.Empty;
+            do
+            {
+                var needle = "Version: ";
+                line = (await reader.ReadLineAsync())?.Trim();
+                if (line?.StartsWith(needle) == true)
+                {
+                    nextVersion = line.Substring(needle.Length);
+                    break;
+                }
+            }
+            while (line != null);
+
+            if (info.Version == nextVersion)
+            {
+                return info;
+            }
+
             info.Version = info.Versioning.Bump().ToString();
+            if (info.Version != nextVersion)
+            {
+                throw new FactorioServiceException("The next version is invalid!");
+            }
+
             return info;
         }
 
@@ -116,7 +144,7 @@ namespace Gomez.Factorio.Services
                 return;
             }
 
-            _logger.LogInformation("Change made to mod script directory.");
+            _logger.LogInformation("Change made to mods change log file.");
 
             var info = await GetAndSaveChangedModInfoAsync();
 
@@ -153,7 +181,6 @@ namespace Gomez.Factorio.Services
         {
             GetInfoSaveInfo(out JsonSerializerOptions options, out string modInfoPath);
             var info = await GetInfoAndBumpVersionAsync(options, modInfoPath);
-
             await File.WriteAllTextAsync(modInfoPath, JsonSerializer.Serialize(info, options));
             return info;
         }
@@ -163,6 +190,7 @@ namespace Gomez.Factorio.Services
             options = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
             };
             modInfoPath = Path.Combine(_option.ModFolder!, "info.json");
         }

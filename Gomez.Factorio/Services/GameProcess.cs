@@ -79,7 +79,7 @@ namespace Gomez.Factorio.Services
 
         public async Task WriteToChatAsync(string message)
         {
-            if (_process?.HasExited != false || _process.StandardInput?.BaseStream is null)
+            if (_process?.HasExited != false || _process.StandardInput?.BaseStream is null || SafeClosed)
             {
                 return;
             }
