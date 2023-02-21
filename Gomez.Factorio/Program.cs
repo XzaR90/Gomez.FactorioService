@@ -13,8 +13,19 @@ hostBuilder.ConfigureServices((ctx, services) =>
 using var host = hostBuilder.Build();
 await host.StartAsync();
 
-using var scope = host.Services.CreateScope();
-var application = scope.ServiceProvider.GetRequiredService<IApplicationService>();
-await application.RunAsync();
-await application.WaitUntilProcessClosedAsync();
+try
+{
+    using var scope = host.Services.CreateScope();
+    var application = scope.ServiceProvider.GetRequiredService<IApplicationService>();
+    await application.RunAsync();
+    await application.WaitUntilProcessClosedAsync();
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex.Message);
+    Console.WriteLine("Press any key to continue");
+    Console.ReadLine();
+    throw;
+}
+
 await host.WaitForShutdownAsync();

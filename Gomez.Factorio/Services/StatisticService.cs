@@ -17,13 +17,13 @@ namespace Gomez.Factorio.Services
             IFileTransfer fileTransfer,
             ILogger<StatisticService> logger)
         {
-            ForcesPath = Path.Combine(FactorioPath.ScriptOutput, "statistic", "forces");
+            StatisticsPath = Path.Combine(FactorioPath.ScriptOutput, "statistic");
             _backgroundTaskQueue = backgroundTaskQueue;
             _fileTransfer = fileTransfer;
             _logger = logger;
         }
 
-        public string ForcesPath { get; private set; }
+        public string StatisticsPath { get; private set; }
 
         public Task StartTransferAsync(CancellationToken ct)
         {
@@ -49,7 +49,7 @@ namespace Gomez.Factorio.Services
                 return ValueTask.FromCanceled(ct);
             }
 
-            var filePaths = Directory.EnumerateFiles(ForcesPath);
+            var filePaths = Directory.EnumerateFiles(StatisticsPath, "*", SearchOption.AllDirectories);
             return _backgroundTaskQueue.QueueBackgroundWorkItemAsync(async (ct) =>
             {
                 await _fileTransfer.UploadAsync(filePaths, ct);
