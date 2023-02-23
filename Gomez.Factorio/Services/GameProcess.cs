@@ -138,7 +138,7 @@ namespace Gomez.Factorio.Services
         private void TryQuit()
         {
             var sw = _process?.StandardInput;
-            if (sw?.BaseStream == null)
+            if (sw?.BaseStream == null || SafeClosed)
             {
                 return;
             }
